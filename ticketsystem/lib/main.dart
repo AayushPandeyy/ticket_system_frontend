@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 import 'package:ticketsystem/QRScannerPage.dart';
-import 'package:ticketsystem/features/login/presentation/screens/LoginScreen.dart';
+import 'package:ticketsystem/SplashScreen.dart';
+import 'package:ticketsystem/core/service/SharedPreferenceService.dart';
+import 'package:ticketsystem/features/auth/presentation/provider/LoginProvider.dart';
+import 'package:ticketsystem/features/auth/presentation/screens/LoginScreen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,14 +22,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'QR Scanner',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return MultiProvider(
+      providers: [
+         Provider<SharedPreferencesService>(
+            create: (_) => SharedPreferencesService(),
+          ),
+          ChangeNotifierProvider<LoginProvider>(
+            create: (context) => LoginProvider(),
+          ),
+      ],
+      child: MaterialApp(
+        title: 'QR Scanner',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: const SplashScreen(),
       ),
-      home: const LoginScreen(),
     );
   }
 }
