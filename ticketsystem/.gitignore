@@ -46,3 +46,9 @@ app.*.map.json
 
 #environemt variable file
 .env
+
+#template files
+/lib/features/featue_template
+
+
+

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ticketsystem/QRScannerPage.dart';
+import 'package:ticketsystem/features/login/presentation/screens/LoginScreen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const QRScannerPage(),
+      home: const LoginScreen(),
     );
   }
 }
