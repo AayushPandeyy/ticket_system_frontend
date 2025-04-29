@@ -1,7 +1,7 @@
 import 'package:ticketsystem/features/auth/domain/entity/UserEntity.dart';
 
 class UserModel extends UserEntity{
-  UserModel({required super.username, required super.email, required super.fullName, required super.password, required super.phoneNumber, required super.dateOfBirth});
+  UserModel({required super.username, required super.email, required super.fullName, required super.password, required super.phoneNumber, required super.dateOfBirth, required super.role});
     factory UserModel.fromJson(Map<String, dynamic> json) {
       return UserModel(
         username: json['username'],
@@ -10,6 +10,7 @@ class UserModel extends UserEntity{
         password: json['password'],
         phoneNumber: json['phoneNumber'],
         dateOfBirth: DateTime.parse(json['dateOfBirth']),
+        role: json['role'] 
       );
     }
 
@@ -21,6 +22,7 @@ class UserModel extends UserEntity{
         'password': password,
         'phoneNumber': phoneNumber,
         'dateOfBirth': dateOfBirth.toIso8601String(),
+        'role': role,
       };
     }
 }

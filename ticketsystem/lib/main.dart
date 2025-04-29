@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:ticketsystem/QRScannerPage.dart';
 import 'package:ticketsystem/SplashScreen.dart';
 import 'package:ticketsystem/core/service/SharedPreferenceService.dart';
-import 'package:ticketsystem/features/auth/presentation/provider/LoginProvider.dart';
+import 'package:ticketsystem/features/auth/presentation/provider/AuthProvider.dart';
 import 'package:ticketsystem/features/auth/presentation/screens/LoginScreen.dart';
 
 void main() async{
@@ -27,8 +27,8 @@ class MyApp extends StatelessWidget {
          Provider<SharedPreferencesService>(
             create: (_) => SharedPreferencesService(),
           ),
-          ChangeNotifierProvider<LoginProvider>(
-            create: (context) => LoginProvider(),
+          ChangeNotifierProvider<AuthProvider>(
+            create: (context) => AuthProvider(),
           ),
       ],
       child: MaterialApp(

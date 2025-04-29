@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ticketsystem/core/service/SharedPreferenceService.dart';
 import 'package:ticketsystem/features/auth/data/datasource/AuthDataSource.dart';
 
-class LoginProvider with ChangeNotifier {
+class AuthProvider with ChangeNotifier {
   bool _isLoading = false;
   String _message = '';
   bool _isLoggedIn = false;
@@ -25,6 +25,30 @@ class LoginProvider with ChangeNotifier {
 
       _isLoggedIn = true;
       _message = 'Login successful!';
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _message = e.toString();
+      print(_message);
+      notifyListeners();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+  Future<void> register(String email, String password, String fullname,
+      String mobileNumber, DateTime birthdate, String username) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      Map<String, dynamic> data = await AuthDataSource().register(email, password, fullname, mobileNumber, birthdate, username);
+
+      // Save tokens to shared preferences
+      await SharedPreferencesService.saveToken(data["accessToken"]);
+
+      _isLoggedIn = true;
+      _message = 'Registration successful!';
       notifyListeners();
     } catch (e) {
       _isLoading = false;

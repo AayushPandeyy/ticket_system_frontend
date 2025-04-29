@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ticketsystem/QRScannerPage.dart';
-import 'package:ticketsystem/features/auth/presentation/provider/LoginProvider.dart';
+import 'package:ticketsystem/features/auth/presentation/provider/AuthProvider.dart';
 import 'package:ticketsystem/features/auth/presentation/screens/RegisterScreen.dart';
+import 'package:ticketsystem/features/profile/presentation/screens/ProfileScreen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       body: SafeArea(
-        child: Consumer<LoginProvider>(
+        child: Consumer<AuthProvider>(
           builder: (context, provider, child) {
             return Center(
               child: SingleChildScrollView(
@@ -171,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       
                                       Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(
-                                          builder: (context) => QRScannerPage(),
+                                          builder: (context) => ProfileScreen(),
                                         ),
                                       );
                                     }

@@ -5,6 +5,7 @@ class UserEntity {
   final String password;
   final String phoneNumber;
   final DateTime dateOfBirth;
+  final String role;
 
   UserEntity(
       {required this.username,
@@ -12,5 +13,6 @@ class UserEntity {
       required this.fullName,
       required this.password,
       required this.phoneNumber,
-      required this.dateOfBirth});
+      required this.dateOfBirth,
+      required this.role});
 }
