@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ticketsystem/core/service/SharedPreferenceService.dart';
 import 'package:ticketsystem/features/auth/data/datasource/AuthDataSource.dart';
 
@@ -36,16 +37,19 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
   Future<void> register(String email, String password, String fullname,
       String mobileNumber, DateTime birthdate, String username) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      Map<String, dynamic> data = await AuthDataSource().register(email, password, fullname, mobileNumber, birthdate, username);
+      Map<String, dynamic> data = await AuthDataSource().register(
+          email, password, fullname, mobileNumber, birthdate, username);
 
       // Save tokens to shared preferences
       await SharedPreferencesService.saveToken(data["accessToken"]);
+      await SharedPreferencesService.saveUserData(data['role'], data['uid']);
 
       _isLoggedIn = true;
       _message = 'Registration successful!';

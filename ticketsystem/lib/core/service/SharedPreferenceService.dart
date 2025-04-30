@@ -15,6 +15,12 @@ class SharedPreferencesService {
     return prefs.getString(_accessTokenKey);
   }
 
+  static Future<void> saveUserData(String role,String uid) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('role', role);
+    await prefs.setString('uid', uid);  
+  }
+
 
 
   // Clear access token

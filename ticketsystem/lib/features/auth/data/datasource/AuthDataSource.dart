@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ticketsystem/core/exceptions/AuthException.dart';
 
 class AuthDataSource {
@@ -12,12 +13,16 @@ class AuthDataSource {
       String url = '${dotenv.env["BASE_URL"]}auth/login';
       final response = await dio.post(
         url,
-        data: {'email': email, 'password': password},
+        data: {'email': email, 'password': password, 'role': 'user'},
       );
 
       if (response.statusCode == 200) {
         final token = response.data['data']['token'];
-        return {'accessToken': token};
+        print('Decoding JWT now...');
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+        final String role = decodedToken['user']['role'];
+        final String uid = decodedToken['user']['id'];
+        return {'accessToken': token,'role':role,'uid':uid};
       } else {
         // Handle unexpected success status codes (201, 202, etc.)
         throw AuthException(
