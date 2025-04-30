@@ -18,11 +18,10 @@ class AuthDataSource {
 
       if (response.statusCode == 200) {
         final token = response.data['data']['token'];
-        print('Decoding JWT now...');
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
         final String role = decodedToken['user']['role'];
         final String uid = decodedToken['user']['id'];
-        return {'accessToken': token,'role':role,'uid':uid};
+        return {'accessToken': token, 'role': role, 'uid': uid};
       } else {
         // Handle unexpected success status codes (201, 202, etc.)
         throw AuthException(
