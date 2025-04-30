@@ -9,8 +9,8 @@ class LoginRepositoryImpl implements LoginRepository {
   LoginRepositoryImpl(this.remoteDataSource, this.localDataSource);
 
   @override
-  Future<Map<String,dynamic>> login(String email, String password) async {
-    return await remoteDataSource.login(email, password);
+  Future<Map<String,dynamic>> login(String email, String password,String role) async {
+    return await remoteDataSource.login(email, password,role);
   }
 
   @override

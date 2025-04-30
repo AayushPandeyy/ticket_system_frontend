@@ -8,12 +8,13 @@ class AuthDataSource {
 
   AuthDataSource({Dio? dio}) : dio = dio ?? Dio();
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(
+      String email, String password, String role) async {
     try {
       String url = '${dotenv.env["BASE_URL"]}auth/login';
       final response = await dio.post(
         url,
-        data: {'email': email, 'password': password, 'role': 'user'},
+        data: {'email': email, 'password': password, 'role': role},
       );
 
       if (response.statusCode == 200) {
@@ -36,7 +37,7 @@ class AuthDataSource {
 
         switch (statusCode) {
           case 400:
-            throw AuthException(400, 'Invalid email or password.');
+            throw AuthException(400, 'Invalid email, password, or role!');
           case 401:
             throw AuthException(
                 401, 'Unauthorized access. Please login again.');

@@ -21,11 +21,20 @@ class SharedPreferencesService {
     await prefs.setString('uid', uid);  
   }
 
+  static Future<Map<String,String?>> getUserData() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? role = prefs.getString('role');
+    String? uid = prefs.getString('uid');
+    return {'role': role, 'uid': uid};
+  }
+
 
 
   // Clear access token
-  static Future<void> clearAllTokens() async {
+  static Future<void> clearAllTokensAndUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove(_accessTokenKey);
+    await prefs.remove('role');
+    await prefs.remove('uid');
   }
 }

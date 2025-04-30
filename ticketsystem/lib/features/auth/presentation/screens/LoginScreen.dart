@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ticketsystem/QRScannerPage.dart';
+import 'package:ticketsystem/core/service/SharedPreferenceService.dart';
 import 'package:ticketsystem/features/auth/presentation/provider/AuthProvider.dart';
 import 'package:ticketsystem/features/auth/presentation/screens/RegisterScreen.dart';
+import 'package:ticketsystem/features/eventOrganizer/presentation/screens/OrganizerDashboard.dart';
 import 'package:ticketsystem/features/profile/presentation/screens/ProfileScreen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  final bool _rememberMe = false;
+  String? _selectedRole = "user";
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -145,6 +147,57 @@ class _LoginScreenState extends State<LoginScreen> {
                             return null;
                           },
                         ),
+                        const SizedBox(height: 24),
+                        // Gender Selection (Radio Buttons inside Wrap to avoid overflow)
+                        Center(
+                          child: Text(
+                            'I am',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 50,
+                          runSpacing: 0,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Radio<String>(
+                                  value: 'user',
+                                  groupValue: _selectedRole,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedRole = value;
+                                    });
+                                  },
+                                ),
+                                const Text('An User'),
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Radio<String>(
+                                  value: 'event_organizer',
+                                  groupValue: _selectedRole,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedRole = value;
+                                    });
+                                  },
+                                ),
+                                const Text('An Organizer'),
+                              ],
+                            ),
+                          ],
+                        ),
+
                         const SizedBox(height: 16),
 
                         // Remember Me and Forgot Password
@@ -164,15 +217,26 @@ class _LoginScreenState extends State<LoginScreen> {
                               : () async {
                                   if (_formKey.currentState!.validate()) {
                                     await provider.login(
-                                      _emailController.text,
-                                      _passwordController.text,
-                                    );
+                                        _emailController.text,
+                                        _passwordController.text,
+                                        _selectedRole!);
 
                                     if (provider.isLoggedIn) {
-                                      
+                                      Map<String, dynamic> userData =
+                                          await SharedPreferencesService
+                                              .getUserData();
+                                      final role = userData['role']?.toString();
+
+                                      Widget nextPage;
+                                      if (role == 'event_organizer') {
+                                        nextPage = const OrganizerDashboard();
+                                      } // Example role
+                                      else {
+                                        nextPage = const ProfileScreen();
+                                      }
                                       Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(
-                                          builder: (context) => ProfileScreen(),
+                                          builder: (context) => nextPage,
                                         ),
                                       );
                                     }

@@ -14,15 +14,17 @@ class AuthProvider with ChangeNotifier {
   bool get isLoggedIn => _isLoggedIn;
 
   // Handle login
-  Future<void> login(String email, String password) async {
+  Future<void> login(String email, String password, String role) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      Map<String, dynamic> data = await AuthDataSource().login(email, password);
+      Map<String, dynamic> data =
+          await AuthDataSource().login(email, password, role);
 
       // Save tokens to shared preferences
       await SharedPreferencesService.saveToken(data["accessToken"]);
+      await SharedPreferencesService.saveUserData(data['role'], data['uid']);
 
       _isLoggedIn = true;
       _message = 'Login successful!';
@@ -57,7 +59,6 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       _message = e.toString();
-      print(_message);
       notifyListeners();
     } finally {
       _isLoading = false;
@@ -68,7 +69,7 @@ class AuthProvider with ChangeNotifier {
   // Logout the user
   Future<void> logout() async {
     try {
-      await SharedPreferencesService.clearAllTokens();
+      await SharedPreferencesService.clearAllTokensAndUserData();
       _isLoggedIn = false;
       _message = 'Logged out successfully!';
     } catch (e) {

@@ -5,7 +5,7 @@ class LoginUseCase {
 
   LoginUseCase(this.authRepository);
 
-  Future<Map<String,dynamic>> login(String email, String password) async {
-    return await authRepository.login(email, password);
+  Future<Map<String,dynamic>> login(String email, String password,String role) async {
+    return await authRepository.login(email, password,role);
   }
 }

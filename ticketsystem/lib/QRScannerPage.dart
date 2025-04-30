@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:dio/dio.dart';
+import 'package:provider/provider.dart';
+import 'package:ticketsystem/features/auth/presentation/provider/AuthProvider.dart';
+import 'package:ticketsystem/features/auth/presentation/screens/LoginScreen.dart';
 import 'package:ticketsystem/models/Ticket.dart';
 import 'package:ticketsystem/models/UserTicketMap.dart';
 
@@ -89,363 +92,381 @@ class _QRScannerPageState extends State<QRScannerPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF1E1E2C),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          'QR Scanner',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
+    return Consumer<AuthProvider>(builder: (context, provider, child) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF1E1E2C),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text(
+            'QR Scanner',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+            ),
           ),
+          centerTitle: true,
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      extendBodyBehindAppBar: true,
-      body: Column(
-        children: [
-          if (isScanning)
-            Expanded(
-              flex: 5,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  MobileScanner(
-                    controller: controller,
-                    onDetect: (capture) async {
-                      final List<Barcode> barcodes = capture.barcodes;
-                      if (barcodes.isNotEmpty) {
-                        final Barcode barcode = barcodes.first;
-                        final userId = barcode.rawValue!;
-                        await processQrCode(userId);
-                      }
-                    },
-                  ),
-                  CustomPaint(
-                    painter: ScannerOverlay(),
-                    child: Container(),
-                  ),
-                  // Animated scanner line
-                  AnimatedBuilder(
-                    animation: _animationController,
-                    builder: (context, child) {
-                      final scanAreaSize =
-                          MediaQuery.of(context).size.width * 0.8;
-                      final left =
-                          (MediaQuery.of(context).size.width - scanAreaSize) /
-                              2;
-                      final top = (MediaQuery.of(context).size.height * 0.5 -
-                              scanAreaSize) /
-                          2;
+        extendBodyBehindAppBar: true,
+        body: Column(
+          children: [
+            if (isScanning)
+              Expanded(
+                flex: 5,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    MobileScanner(
+                      controller: controller,
+                      onDetect: (capture) async {
+                        final List<Barcode> barcodes = capture.barcodes;
+                        if (barcodes.isNotEmpty) {
+                          final Barcode barcode = barcodes.first;
+                          final userId = barcode.rawValue!;
+                          await processQrCode(userId);
+                        }
+                      },
+                    ),
+                    CustomPaint(
+                      painter: ScannerOverlay(),
+                      child: Container(),
+                    ),
+                    // Animated scanner line
+                    AnimatedBuilder(
+                      animation: _animationController,
+                      builder: (context, child) {
+                        final scanAreaSize =
+                            MediaQuery.of(context).size.width * 0.8;
+                        final left =
+                            (MediaQuery.of(context).size.width - scanAreaSize) /
+                                2;
+                        final top = (MediaQuery.of(context).size.height * 0.5 -
+                                scanAreaSize) /
+                            2;
 
-                      return Positioned(
-                        left: left,
-                        top: top + (_animation.value * scanAreaSize),
-                        child: Container(
-                          width: scanAreaSize,
-                          height: 2,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.blue.withOpacity(0),
-                                Colors.blue.withOpacity(0.8),
-                                Colors.blue.withOpacity(0),
-                              ],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
+                        return Positioned(
+                          left: left,
+                          top: top + (_animation.value * scanAreaSize),
+                          child: Container(
+                            width: scanAreaSize,
+                            height: 2,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.blue.withOpacity(0),
+                                  Colors.blue.withOpacity(0.8),
+                                  Colors.blue.withOpacity(0),
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
                             ),
                           ),
+                        );
+                      },
+                    ),
+                    Positioned(
+                      bottom: 40,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(50),
                         ),
-                      );
-                    },
-                  ),
-                  Positioned(
-                    bottom: 40,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Material(
-                              color: Colors.transparent,
-                              child: IconButton(
-                                icon: const Icon(Icons.flip_camera_ios,
-                                    color: Colors.white),
-                                onPressed: () => controller.switchCamera(),
-                                iconSize: 28,
-                                splashRadius: 24,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Material(
+                                color: Colors.transparent,
+                                child: IconButton(
+                                  icon: const Icon(Icons.flip_camera_ios,
+                                      color: Colors.white),
+                                  onPressed: () => controller.switchCamera(),
+                                  iconSize: 28,
+                                  splashRadius: 24,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            ValueListenableBuilder(
-                              valueListenable: controller,
-                              builder: (context, state, child) {
-                                return Material(
-                                  color: Colors.transparent,
-                                  child: IconButton(
-                                    icon: Icon(
-                                      state == TorchState.on
-                                          ? Icons.flash_off
-                                          : Icons.flash_on,
-                                      color: Colors.white,
+                              const SizedBox(width: 8),
+                              ValueListenableBuilder(
+                                valueListenable: controller,
+                                builder: (context, state, child) {
+                                  return Material(
+                                    color: Colors.transparent,
+                                    child: IconButton(
+                                      icon: Icon(
+                                        state == TorchState.on
+                                            ? Icons.flash_off
+                                            : Icons.flash_on,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: () => controller.toggleTorch(),
+                                      iconSize: 28,
+                                      splashRadius: 24,
                                     ),
-                                    onPressed: () => controller.toggleTorch(),
-                                    iconSize: 28,
-                                    splashRadius: 24,
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    top: 100,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        'Scan QR Code',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
+                    Positioned(
+                      top: 100,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          'Scan QR Code',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            )
-          else
-            Expanded(
-              flex: 5,
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFF2C3E50), Color(0xFF1E1E2C)],
-                  ),
+                  ],
                 ),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Card(
-                      elevation: 10,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      color: Colors.white.withOpacity(0.9),
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.blue.withOpacity(0.1),
-                                shape: BoxShape.circle,
+              )
+            else
+              Expanded(
+                flex: 5,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFF2C3E50), Color(0xFF1E1E2C)],
+                    ),
+                  ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Card(
+                        elevation: 10,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        color: Colors.white.withOpacity(0.9),
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.qr_code_scanner,
+                                  size: 64,
+                                  color: Colors.blue,
+                                ),
                               ),
-                              child: const Icon(
-                                Icons.qr_code_scanner,
-                                size: 64,
-                                color: Colors.blue,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            Text(
-                              scanResult == 'No QR code scanned yet'
-                                  ? 'Ready to Scan'
-                                  : 'Scan Complete',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF2C3E50),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            if (ticketCount > 0) ...[
+                              const SizedBox(height: 24),
                               Text(
-                                'Ticket Count: $ticketCount',
+                                scanResult == 'No QR code scanned yet'
+                                    ? 'Ready to Scan'
+                                    : 'Scan Complete',
                                 style: const TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF2C3E50),
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              Container(
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(12),
+                              if (ticketCount > 0) ...[
+                                Text(
+                                  'Ticket Count: $ticketCount',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2C3E50),
+                                  ),
                                 ),
-                                child: tickets.isEmpty
-                                    ? const Center(
-                                        child: Text('No tickets found'),
-                                      )
-                                    : ListView.builder(
-                                        itemCount: tickets.length,
-                                        padding: const EdgeInsets.all(8),
-                                        itemBuilder: (context, index) {
-                                          final ticket = tickets[index];
-                                          return Card(
-                                            elevation: 2,
-                                            margin: const EdgeInsets.only(
-                                                bottom: 8),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: ListTile(
-                                              leading: const CircleAvatar(
-                                                backgroundColor: Colors.blue,
-                                                child: Icon(
-                                                    Icons.confirmation_number,
-                                                    color: Colors.white),
+                                const SizedBox(height: 16),
+                                Container(
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: tickets.isEmpty
+                                      ? const Center(
+                                          child: Text('No tickets found'),
+                                        )
+                                      : ListView.builder(
+                                          itemCount: tickets.length,
+                                          padding: const EdgeInsets.all(8),
+                                          itemBuilder: (context, index) {
+                                            final ticket = tickets[index];
+                                            return Card(
+                                              elevation: 2,
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 8),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
                                               ),
-                                              title: Text(
-                                                ticket.eventName,
-                                                style: const TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              trailing: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 6),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.blue,
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
+                                              child: ListTile(
+                                                leading: const CircleAvatar(
+                                                  backgroundColor: Colors.blue,
+                                                  child: Icon(
+                                                      Icons.confirmation_number,
+                                                      color: Colors.white),
                                                 ),
-                                                child: Text(
-                                                  '${ticket.ticketCount}',
+                                                title: Text(
+                                                  ticket.eventName,
                                                   style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                trailing: Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 6),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.blue,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                  ),
+                                                  child: Text(
+                                                    '${ticket.ticketCount}',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                              ),
-                            ] else ...[
-                              Text(
-                                scanResult,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey.shade700,
+                                            );
+                                          },
+                                        ),
                                 ),
-                              ),
-                            ],
-                            if (scanResult != 'No QR code scanned yet') ...[
-                              const SizedBox(height: 24),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  setState(() {
-                                    scanResult = 'No QR code scanned yet';
-                                    tickets = [];
-                                    ticketCount = 0;
-                                  });
-                                },
-                                icon: const Icon(Icons.refresh),
-                                label: const Text('Clear Result'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
+                              ] else ...[
+                                Text(
+                                  scanResult,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey.shade700,
                                   ),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 12),
                                 ),
-                              ),
+                              ],
+                              if (scanResult != 'No QR code scanned yet') ...[
+                                const SizedBox(height: 24),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      scanResult = 'No QR code scanned yet';
+                                      tickets = [];
+                                      ticketCount = 0;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.refresh),
+                                  label: const Text('Clear Result'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 12),
+                                  ),
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-            decoration: BoxDecoration(
-              color: Colors.black87,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, -3),
-                ),
-              ],
-            ),
-            child: SafeArea(
-              top: false,
-              child: ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    isScanning = !isScanning;
-                    if (isScanning) {
-                      controller.start();
-                    } else {
-                      controller.stop();
-                    }
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isScanning ? Colors.red : Colors.blue,
-                  foregroundColor: Colors.white,
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.black87,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, -3),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: Column(
                   children: [
-                    Icon(isScanning ? Icons.stop : Icons.qr_code_scanner,
-                        size: 24),
-                    const SizedBox(width: 12),
-                    Text(
-                      isScanning ? 'Stop Scanning' : 'Start Scanning',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          isScanning = !isScanning;
+                          if (isScanning) {
+                            controller.start();
+                          } else {
+                            controller.stop();
+                          }
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isScanning ? Colors.red : Colors.blue,
+                        foregroundColor: Colors.white,
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(isScanning ? Icons.stop : Icons.qr_code_scanner,
+                              size: 24),
+                          const SizedBox(width: 12),
+                          Text(
+                            isScanning ? 'Stop Scanning' : 'Start Scanning',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                    ElevatedButton(
+                        onPressed: () async {
+                          await provider.logout();
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (context) => const LoginScreen()),
+                            (route) => false, // Removes all previous routes
+                          );
+                        },
+                        child: Text("Logout"))
                   ],
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   @override
