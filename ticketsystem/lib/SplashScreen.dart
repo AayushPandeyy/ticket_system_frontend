@@ -1,34 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:ticketsystem/NavigatorScreen.dart';
-import 'package:ticketsystem/QRScannerPage.dart';
 import 'package:ticketsystem/core/service/SharedPreferenceService.dart';
 import 'package:ticketsystem/features/auth/presentation/screens/LoginScreen.dart';
+import 'package:ticketsystem/features/eventOrganizer/presentation/screens/OrganizerDashboard.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
 
+  void _navigateToNextScreen() async {
+    final token = await SharedPreferencesService.getAccessToken();
+    final userData = await SharedPreferencesService.getUserData();
+    final String role = userData['role']!;
+    final nextPage = (token == null)
+        ? LoginScreen()
+        : ((role == "user") ? NavigatorScreen() : OrganizerDashboard());
 
-
-void _navigateToNextScreen() async {
-  final token = await SharedPreferencesService.getAccessToken();
-  final nextPage = (token == null) ? LoginScreen() : NavigatorScreen();
-  
-  Future.delayed(const Duration(seconds: 2), () {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => nextPage),
-    );
-  });
-}
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => nextPage),
+      );
+    });
+  }
 
   @override
   void initState() {
@@ -43,7 +46,6 @@ void _navigateToNextScreen() async {
         parent: _controller,
         curve: const Interval(0.0, 0.65, curve: Curves.easeInOut),
       ),
-
     );
 
     _scaleAnimation = Tween<double>(begin: 0.6, end: 1.0).animate(
@@ -55,8 +57,8 @@ void _navigateToNextScreen() async {
 
     _controller.forward();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => _navigateToNextScreen());
-    
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _navigateToNextScreen());
   }
 
   @override
@@ -138,7 +140,8 @@ void _navigateToNextScreen() async {
                         width: 40,
                         height: 40,
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                           strokeWidth: 3,
                         ),
                       ),
@@ -153,4 +156,3 @@ void _navigateToNextScreen() async {
     );
   }
 }
-
