@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen>
   void _navigateToNextScreen() async {
     final token = await SharedPreferencesService.getAccessToken();
     final userData = await SharedPreferencesService.getUserData();
-    final String role = userData['role']!;
+    final String role = userData['role'] ?? "";
     final nextPage = (token == null)
         ? LoginScreen()
         : ((role == "user") ? NavigatorScreen() : OrganizerDashboard());

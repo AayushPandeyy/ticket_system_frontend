@@ -10,14 +10,14 @@ class EventCard extends StatelessWidget {
   final VoidCallback onScanQRPressed;
 
   const EventCard({
-    Key? key,
+    super.key,
     required this.imageUrl,
     required this.title,
     required this.description,
     required this.dateTime,
     required this.capacity,
     required this.onScanQRPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,8 @@ class EventCard extends StatelessWidget {
                     height: 180,
                     width: double.infinity,
                     color: Colors.grey[300],
-                    child: const Icon(Icons.image, size: 50, color: Colors.grey),
+                    child:
+                        const Icon(Icons.image, size: 50, color: Colors.grey),
                   ),
                 ),
                 // Date Badge
@@ -60,7 +61,8 @@ class EventCard extends StatelessWidget {
                   top: 16,
                   right: 16,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -132,7 +134,7 @@ class EventCard extends StatelessWidget {
                       DateFormat('h:mm a').format(dateTime),
                     ),
                     const SizedBox(width: 16),
-                    
+
                     // Capacity Info
                     _buildInfoItem(
                       Icons.people_outline_rounded,
@@ -147,7 +149,8 @@ class EventCard extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: onScanQRPressed,
-                    icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
+                    icon:
+                        const Icon(Icons.qr_code_scanner, color: Colors.white),
                     label: const Text(
                       'Scan QR Code',
                       style: TextStyle(

@@ -6,6 +6,10 @@ import 'package:ticketsystem/SplashScreen.dart';
 import 'package:ticketsystem/core/service/SharedPreferenceService.dart';
 import 'package:ticketsystem/features/auth/presentation/provider/AuthProvider.dart';
 import 'package:ticketsystem/features/auth/presentation/screens/LoginScreen.dart';
+import 'package:ticketsystem/features/eventOrganizer/data/datasource/OrganizerDataSoruce.dart';
+import 'package:ticketsystem/features/eventOrganizer/data/repository_impl/OrganizerRepositoryImpl.dart';
+import 'package:ticketsystem/features/eventOrganizer/domain/usecase/CreateEventUseCase.dart';
+import 'package:ticketsystem/features/eventOrganizer/presentation/provider/OrganizerProvider.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +33,9 @@ class MyApp extends StatelessWidget {
           ),
           ChangeNotifierProvider<AuthProvider>(
             create: (context) => AuthProvider(),
+          ),
+          ChangeNotifierProvider<OrganizerProvider>(
+            create: (context) => OrganizerProvider(createEventUseCase: CreateEvent(organizerRepository: OrganizerRepositoryImpl(OrganizerDataSource()))),
           ),
       ],
       child: MaterialApp(
